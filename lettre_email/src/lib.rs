@@ -221,7 +221,7 @@ impl EmailBuilder {
         self
     }
 
-    /// Adds a `References` header
+    /// Set the `Message-ID` suffix
     pub fn references(mut self, message_id: MessageId) -> EmailBuilder {
         self.references.push(message_id);
         self
