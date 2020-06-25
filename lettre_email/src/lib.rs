@@ -67,6 +67,8 @@ pub struct EmailBuilder {
     in_reply_to: Vec<MessageId>,
     /// The References ids for the mail header
     references: Vec<MessageId>,
+    /// Message-ID suffix, default to `.lettre@localhost`
+    message_id_suffix: String,
     /// The sender address for the mail header
     sender: Option<Mailbox>,
     /// The envelope
@@ -159,6 +161,7 @@ impl EmailBuilder {
             reply_to: vec![],
             in_reply_to: vec![],
             references: vec![],
+            message_id_suffix: ".lettre@localhost".to_string(),
             sender: None,
             envelope: None,
             date_issued: false,
@@ -221,6 +224,12 @@ impl EmailBuilder {
     /// Adds a `References` header
     pub fn references(mut self, message_id: MessageId) -> EmailBuilder {
         self.references.push(message_id);
+        self
+    }
+
+    /// Adds a `References` header
+    pub fn message_id_suffix(mut self, message_id_suffix: &String) -> EmailBuilder {
+        self.message_id_suffix = message_id_suffix.clone();
         self
     }
 
@@ -468,7 +477,7 @@ impl EmailBuilder {
 
         if let Ok(header) = Header::new_with_value(
             "Message-ID".to_string(),
-            format!("<{}.lettre@localhost>", message_id),
+            format!("<{}{}>", message_id, self.message_id_suffix),
         ) {
             self.message = self.message.header(header)
         }
