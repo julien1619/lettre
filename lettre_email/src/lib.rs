@@ -339,6 +339,7 @@ impl EmailBuilder {
         let text = PartBuilder::new()
             .body(body_text)
             .header(("Content-Type", mime::TEXT_PLAIN_UTF_8.to_string()))
+            .header(("Content-Transfer-Encoding", "8bit"))
             .build();
 
         let html = PartBuilder::new()
