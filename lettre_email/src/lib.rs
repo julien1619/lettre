@@ -19,6 +19,7 @@ extern crate lettre;
 pub extern crate mime;
 extern crate time;
 extern crate uuid;
+extern crate quoted_printable;
 
 pub mod error;
 
@@ -26,6 +27,7 @@ pub use email_format::{Address, Header, Mailbox, MimeMessage, MimeMultipartType}
 use error::Error;
 use lettre::{error::Error as LettreError, EmailAddress, Envelope, SendableEmail};
 use mime::Mime;
+use quoted_printable::encode_to_str;
 use std::fs;
 use std::path::Path;
 use std::str::FromStr;
@@ -336,15 +338,18 @@ impl EmailBuilder {
         body_html: S,
         body_text: T,
     ) -> EmailBuilder {
+        let body_text: String = body_text.into();
         let text = PartBuilder::new()
-            .body(body_text)
+            .body(encode_to_str(body_text.as_bytes()))
             .header(("Content-Type", mime::TEXT_PLAIN_UTF_8.to_string()))
-            .header(("Content-Transfer-Encoding", "8bit"))
+            .header(("Content-Transfer-Encoding", "quoted-printable"))
             .build();
 
+        let body_html: String = body_html.into();
         let html = PartBuilder::new()
-            .body(body_html)
+            .body(encode_to_str(body_html.as_bytes()))
             .header(("Content-Type", mime::TEXT_HTML_UTF_8.to_string()))
+            .header(("Content-Transfer-Encoding", "quoted-printable"))
             .build();
 
         let alternate = PartBuilder::new()
